@@ -24,7 +24,7 @@ Charlotte, North Carolina: home of NASCAR, barbeque, banking and ... craft beer?
 
 Over the last five years, a number of breweries have sprung up in Charlotte and already it's hard to keep up with the new names. Last summer, a [Fortune article](http://fortune.com/2015/07/25/craft-breweries-north-carolina/) covered Charlotte's growth into the craft beer industry, even calling Charlotte a hub for craft beer. While the same could be said for many other cities in the United States, in this tutorial we're going to explore ways to analyze Charlotte's growth into craft beer with Twitter data.
 
-In this three-part tutorial, We will explore beer-related Tweets from Charlotte between Dec 2015 to Feb 2016 based on data from [Gnip's Historical PowerTrack API](http://support.gnip.com/apis/historical_api/). Tweets are identified in Charlotte based on geo-location (GPS coordinates); therefore, this analysis excludes Tweets without geo-location.
+In this three-part tutorial, we will explore beer-related tweets from Charlotte between Dec 2015 to Feb 2016 based on data from [Gnip's Historical PowerTrack API](http://support.gnip.com/apis/historical_api/). Tweets are identified in Charlotte based on geo-location (GPS coordinates); therefore, this analysis excludes tweets without geo-location.
 
 The purpose of these posts are to be tutorials for UNC Charlotte social scientists on ways to analyze Twitter data. While I find some neat results, these posts are not to be definitive analyses of the Charlotte's beer industry and since our data is limited to only geo-located Tweets, we cannot generalize our results to all Tweets.
 
@@ -55,17 +55,19 @@ First, how many Tweets do we have?
 nrow(beer.tweets)
 ```
 
-What is the range of dates for the Tweets?
+Since each row is a unique tweet, we have 5,151 geo-located tweets with beer-related terms.
+
+What is the range of dates for the tweets?
 
 ```{r}
-# first Tweet
+# first tweet
 min(beer.tweets$postedTime)
 
-# last Tweet
+# last tweet
 max(beer.tweets$postedTime)
 ```
 
-The first Tweet was on Nov 30, 2015 at 7:41pm (Eastern time) and the last Tweet was on Feb 29, 2016 at 6:50pm (Eastern time).
+The first tweet was on Nov 30, 2015 at 7:41pm (Eastern time) and the last tweet was on Feb 29, 2016 at 6:50pm (Eastern time).
 
 And what are the columns (variables) in the dataset?
 
@@ -73,19 +75,19 @@ And what are the columns (variables) in the dataset?
 colnames(beer.tweets)
 ```
 
-This dataset includes 18 variables. The data includes details about the Tweet and its author.
+This dataset includes 18 variables. The data includes details about the tweet and its author.
 
 Here's a brief metadata table that explains key variables that we'll use in our analysis:
 
 Column        | Description                   | Category      |
 ------------- | ----------------------------- | ------------- |
 body          | Tweet content/text            | Tweet         |
-postedTime    | Time of Tweet                 | Tweet         |
+postedTime    | Time of tweet                 | Tweet         |
 displayName   | Twitter Username              | User          |
 summary       | Twitter profile description   | User          |
 friendsCount  | User's friends count          | User          |
 followersCount| User's followers count        | User          |
-statusesCount | User's Tweet count            | User          |
+statusesCount | User's tweet count            | User          |
 actor.location| User's self-reported location | User          | 
 generator     | Mobile device or app used     | Device        |
 geo.type      | Geo Type: Point or Polygon    | Geo-location  |
@@ -102,7 +104,7 @@ source('../functions.R')
 
 ### Time
 
-First, let's plot the daily count of Tweets along with a smoothing line, then we'll ask some questions designed to help interpret the data. These interactive graphs are created using [Plotly](https://plot.ly/).
+First, let's plot the daily count of tweets along with a smoothing line, then we'll ask some questions designed to help interpret the data. These interactive graphs are created using [Plotly](https://plot.ly/).
 
 ```{r fig.height=6.5}
 timePlotly(beer.tweets)
@@ -126,11 +128,11 @@ Next, let's create a box-plot for day of week and a line plot for hour to examin
 ```{r fig.height=6.5}
 weekPlotly(beer.tweets)
 ```
-This plot shows how Tweets vary by the day of the week.
+This plot shows how tweets vary by the day of the week.
 
-The weekend makes a difference. On average, there were about 90 geo-located point Tweets on Saturdays. Friday and Sundays average about 50-60 beer Tweets, but have some variability.
+The weekend makes a difference. On average, there were about 90 geo-located point tweets on Saturdays. Friday and Sundays average about 50-60 beer tweets, but have some variability.
 
-On the other hand, Mondays are the slowest beer day, averaging about 20 beer-Tweets per day. This isn't completely surprising as a handful of bars and breweries are closed on Mondays. The middle of the week (Tues-Thurs) are flat, about 40-50 beer-Tweets per day, with some variability for Wednesdays and Thursdays.
+On the other hand, Mondays are the slowest beer day, averaging about 20 beer-tweets per day. This isn't completely surprising as a handful of bars and breweries are closed on Mondays. The middle of the week (Tues-Thurs) are flat, about 40-50 beer-tweets per day, with some variability for Wednesdays and Thursdays.
 
 So no surprises: the weekends are beer time!
 
@@ -139,11 +141,11 @@ What about an hourly plot?
 ```{r fig.height=6.5}
 hourPlotly(beer.tweets)
 ```
-For this plot, we plot the Tweets by hour of the day (using a 24 hour clock). Try clicking on one of the days' names in the legend. It filters out the selected day.
+For this plot, we plot the tweets by hour of the day (using a 24 hour clock). Try clicking on one of the days' names in the legend. It filters out the selected day.
 
-Filter out Monday to Wednesday. Saturdays, Tweets start coming in around 11am through the night. Sundays, Tweets start at 12 but fall off around 8pm.
+Filter out Monday to Wednesday. Saturdays, tweets start coming in around 11am through the night. Sundays, tweets start at 12 but fall off around 8pm.
 
-It's clear that time is an important factor in the number of Tweets. Let's now explore location as measured through GPS data: geo-location.
+It's clear that time is an important factor in the number of tweets. Let's now explore location as measured through GPS data: geo-location.
 
 ### Geo-location
 
@@ -163,7 +165,7 @@ Point           | Activity location via GPS signal          | Yes, Lat / Long Co
 Polygon (Place) | Mentioned place (e.g. city, neighborhood) | Yes, Lat / Long Bounding Box|
 Profile Location| Descriptive text, associated with profile | No, only descriptive text   |
 
-A **point** is a Tweet with coordinates via GPS enabled devices. This location does not contain any contextual information unless combined with a Twitter polygon (place). Points have single values in the point_lat and point_long columns.
+A **point** is a tweet with coordinates via GPS enabled devices. This location does not contain any contextual information unless combined with a Twitter polygon (place). Points have single values in the point_lat and point_long columns.
 
 A **polygon**, sometimes referred by Twitter and Gnip as a place (see [this](https://blog.twitter.com/2010/twitter-places-more-context-for-your-tweets) blog post), is a GPS polygon consisting of four coordinates, a "box" of a general area. Polygons have a display name association (e.g., a city, country code) and an associated place ID with a range of attributes. Polygons do not have unique values in the point_lat and point_long columns, but instead have values in bounding box latitude/longitude points (these fields have been omitted from our sample dataset). For details about the polygon (place) attributes, check out [this webpage](https://dev.twitter.com/overview/api/places) from Twitter's API.
 
@@ -173,15 +175,15 @@ As a rule of thumb, you can think of points as *specific* geo-locations while po
 
 #### Researchers: Caution on Geo-location and its Limitations 
 
-**Most Tweets do not have any geo-location information (point or polygon data)!** This dataset **excludes** non-geolocated Charlotte Beer Tweets. For example, I tweet while standing in Charlotte but I have geo-location disabled.   
+**Most tweets do not have any geo-location information (point or polygon data)!** This dataset **excludes** non-geolocated Charlotte Beer tweets. For example, I tweet while standing in Charlotte but I have geo-location disabled.   
 
-For simplicity in this tutorial, we will not try to overcome this problem. However, this assumption leaves the results with the caveat that they may not fully represent the full population of all Charlotte beer-related Tweets. When using Twitter geo-located data, it is **critical** that researchers and practioners understand and be aware of the potential implications to their results (e.g. sample selection bias).  
+For simplicity in this tutorial, we will not try to overcome this problem. However, this assumption leaves the results with the caveat that they may not fully represent the full population of all Charlotte beer-related tweets. When using Twitter geo-located data, it is **critical** that researchers and practioners understand and be aware of the potential implications to their results (e.g. sample selection bias).  
 
 For a deeper dive into Twitter's geo-location and its limitations, check out this [great blog post](http://dfreelon.org/2013/05/12/twitter-geolocation-and-its-limitations/).
 
 ***
 
-Now back to our analysis. Let's use the `dplyr` package to aggregate our data and count how many points versus place Tweets our dataset includes. This package can be used to aggregate relational data similar to SQL's group by and aggregate commands.
+Now back to our analysis. Let's use the `dplyr` package to aggregate our data and count how many points versus place tweets our dataset includes. This package can be used to aggregate relational data similar to SQL's group by and aggregate commands.
 
 ```{r}
 library(dplyr)
@@ -190,14 +192,14 @@ geo_type_cnt <- beer.tweets %>%
   summarize(count = n())
 ```
 
-Let's create a bar chart to compare the number of points and polygon Tweets.
+Let's create a bar chart to compare the number of points and polygon tweets.
 
 ```{r fig.height=3.5, fig.align="center"}
 plotlyBarChart(geo_type_cnt) 
 ```
-Most of the tweets in our dataset are points (91%); only 9% of the Tweets are polygons. For reference, the original dataset of all Charlotte geo-located Tweets had about a 50% / 50% mix of point and polygons. Therefore, this dataset has a high ratio of points-to-polygons.
+Most of the tweets in our dataset are points (91%); only 9% of the tweets are polygons. For reference, the original dataset of all Charlotte geo-located tweets had about a 50% / 50% mix of point and polygons. Therefore, this dataset has a high ratio of points-to-polygons.
 
-Given their prevalence, let's consider the points. If we are to plot them on a map, where are the Tweets located geographically?
+Given their prevalence, let's consider the points. If we are to plot them on a map, where are the tweets located geographically?
 
 ```{r}
 beer.tweets.pt <- subset(beer.tweets, geo.type == "Point")
@@ -213,11 +215,11 @@ for (i in c("Region", "Charlotte", "Uptown")) {
 plots
 ```
 
-The three plots above show all of the point Tweets at varying zoom-levels. The points are accompanied by smoothed heat-maps to get a general sense of the areas with more Tweets.
+The three plots above show all of the point tweets at varying zoom-levels. The points are accompanied by smoothed heat-maps to get a general sense of the areas with more tweets.
 
-The highest concentration of Tweets is near the uptown area. If we zoom in further, we see that the largest number of Tweets are in NoDa and South End with additional pockets are in Uptown and Plaza Midwood. [Geo-location can be made into a dynamic heatmap using CartoDB](https://rwesslen.carto.com/viz/d4e674c6-4eaf-11e6-bf2e-0e05a8b3e3d7/public_map)
+The highest concentration of tweets is near the uptown area. If we zoom in further, we see that the largest number of tweets are in NoDa and South End with additional pockets are in Uptown and Plaza Midwood. [Geo-location can be made into a dynamic heatmap using CartoDB](https://rwesslen.carto.com/viz/d4e674c6-4eaf-11e6-bf2e-0e05a8b3e3d7/public_map)
 
-But which breweries are mentioned the most? To answer this question, we'll need to consider the text of the Tweet, or the body variable in the dataset. Let's run a function to explore the top 20 bars and  breweries that were mentioned the most by their Twitter handles.
+But which breweries are mentioned the most? To answer this question, we'll need to consider the text of the tweet, or the body variable in the dataset. Let's run a function to explore the top 20 bars and  breweries that were mentioned the most by their Twitter handles.
 
 ```{r fig.height=6.5}
 count <- getCommonHandles(tolower(beer.tweets$body), n = 20)
@@ -233,19 +235,19 @@ There were four local bar/growler shops in the top 20, with the most-mentioned b
 
 Also, we find that three non-Charlotte breweries were mentioned frequently. Wicked Weed was the fifth most mentioned brewery. It is located in Asheville but with a heavy presence on Charlotte taps.
 
-Unfortunately, this analysis does not provide insight on whether users are Tweeting about specific beers or about being at the breweries themselves. With some geo-spatial analysis, we could connect the Tweet point locations to the point locations of breweries (e.g., any Tweet within 1,000 feet of a brewery would be considered at that brewery). 
+Unfortunately, this analysis does not provide insight on whether users are tweeting about specific beers or about being at the breweries themselves. With some geo-spatial analysis, we could connect the tweet point locations to the point locations of breweries (e.g., any tweet within 1,000 feet of a brewery would be considered at that brewery). 
 
-Yet for simplicity, in the next section, we will explore information using a text extraction function to distinguish mentions for a subset of Tweets from Untappd, a beer-related mobile app that drives a majority of the beer-Tweets.
+Yet for simplicity, in the next section, we will explore information using a text extraction function to distinguish mentions for a subset of tweets from Untappd, a beer-related mobile app that drives a majority of the beer-tweets.
 
 ### Device or App
 
-In this section, we'll analyze how people are Tweeting by understanding what app or device they use to generate their Tweet. By doing so, we'll find that unique devices or apps can generate specific types of information and, more importantly, can impact what information users provide or withhold in their Tweet.
+In this section, we'll analyze how people are tweeting by understanding what app or device they use to generate their tweet. By doing so, we'll find that unique devices or apps can generate specific types of information and, more importantly, can impact what information users provide or withhold in their tweet.
 
-For this analysis, we use the generator column. This variable is a mixture of both the device when users use the actual Twitter app (like "Twitter for iPhone") or the name of a non-Twitter app (like "Instagram" or "Foursquare") that sends information to Twitter for the Tweet.
+For this analysis, we use the generator column. This variable is a mixture of both the device when users use the actual Twitter app (like "Twitter for iPhone") or the name of a non-Twitter app (like "Instagram" or "Foursquare") that sends information to Twitter for the tweet.
 
-To simplify our results, let's separate the points and polygon Tweets.
+To simplify our results, let's separate the points and polygon tweets.
 
-First, let's consider the top 5 device/app used to Tweet for the points:
+First, let's consider the top 5 device/app used to tweet for the points:
 
 ```{r}
 gendata.pt <- subset(beer.tweets, geo.type == "Point") %>% 
@@ -256,9 +258,9 @@ gendata.pt <- subset(beer.tweets, geo.type == "Point") %>%
 head(gendata.pt,5)
 ```
 
-Ah! So most point Tweets are through [Untappd](https://untappd.com/). A large number of Tweets also came through Instagram and a smaller number of Tweets came from Foursquare and [Beer Menus](https://www.beermenus.com/), another beer-related app.
+Ah! So most point tweets are through [Untappd](https://untappd.com/). A large number of tweets also came through Instagram and a smaller number of tweets came from Foursquare and [Beer Menus](https://www.beermenus.com/), another beer-related app.
 
-How does this compare to the polygon Tweets?
+How does this compare to the polygon tweets?
 
 ```{r}
 gendata.poly <- subset(beer.tweets, geo.type == "Polygon") %>% 
@@ -269,11 +271,11 @@ gendata.poly <- subset(beer.tweets, geo.type == "Polygon") %>%
 head(gendata.poly,5)
 ```
 
-For polygon Tweets, almost all of them are through Twitter's mobile app on either iOS (iPhone) or Android.
+For polygon tweets, almost all of them are through Twitter's mobile app on either iOS (iPhone) or Android.
 
-An interesting point about app/device is that the app/device can impact what is said in the Tweet and the information (like geo-location that is provided). For example, let's consider the app Untappd, which makes up the majority of the point Tweets.
+An interesting point about app/device is that the app/device can impact what is said in the tweet and the information (like geo-location that is provided). For example, let's consider the app Untappd, which makes up the majority of the point tweets.
 
-Here are three Untappd Tweets:
+Here are three Untappd tweets:
 
 ```{r}
 untappd.tweets <- beer.tweets$body[beer.tweets$generator=="Untappd"]
@@ -281,17 +283,17 @@ untappd.tweets <- beer.tweets$body[beer.tweets$generator=="Untappd"]
 print(untappd.tweets[c(2,6,7)])
 ```
 
-What's unique is that most have a similar structure in which the user Tweets 
+What's unique is that most have a similar structure in which the user tweets 
 
 ```{r}
 
 ```
 
-"Drinking a [beer name] by [brewery's name] at [bar/restaurant's name] [webpage link]". Some Tweets even have users' comments at the beginning of the Tweet like the first example.
+"Drinking a [beer name] by [brewery's name] at [bar/restaurant's name] [webpage link]". Some tweets even have users' comments at the beginning of the tweet like the first example.
 
-We'll use a precreated function called "untappd.list" that will extract the three elements (beer name, brewery's name and bar name) and put them into a dataframe. Unfortunately, there are some Tweets that do not follow this structure completely, and for now, we'll drop those records and only look at those that follow this structure (about 2/3 of the Untappd Tweets).
+We'll use a precreated function called "untappd.list" that will extract the three elements (beer name, brewery's name and bar name) and put them into a dataframe. Unfortunately, there are some tweets that do not follow this structure completely, and for now, we'll drop those records and only look at those that follow this structure (about 2/3 of the Untappd tweets).
 
-Let's create the dataset and show what the same Tweets above look in our new dataset.
+Let's create the dataset and show what the same tweets above look in our new dataset.
 
 ```{r}
 beer_list <- untappd.list(untappd.tweets)
@@ -351,11 +353,11 @@ Let's review the major takeaways for researchers and practioners (i.e., brewery 
 
 #### Researchers:
 
-1. **Geo-location, time and device are important factors to consider in Twitter research.** Firstly, geo-location offers insight into spatial patterns, but self-selection bias remains a risk. Secondly, cyclical patterns can occur due to day of week, day and hour; therefore, be aware of the time-frame of your dataset. Lastly, Tweets can come from multiple different devices (apps); each app can provide unique attributes (e.g. a check-in app has geo-location)
+1. **Geo-location, time and device are important factors to consider in Twitter research.** Firstly, geo-location offers insight into spatial patterns, but self-selection bias remains a risk. Secondly, cyclical patterns can occur due to day of week, day and hour; therefore, be aware of the time-frame of your dataset. Lastly, tweets can come from multiple different devices (apps); each app can provide unique attributes (e.g. a check-in app has geo-location)
 
 2. **Find the platform that fits your research question.** Twitter has advantages like being a large **public** repository. Facebook, on the other hand, is primarily private and thus the data available is limited. However, if you use Twitter data, it's important that your research question aligns with communication found on Twitter. For example, Twitter is a good platform for beer popularity because it's clear users share thoughts on Twitter about beer frequently. Yet for other research questions (e.g., interpersonal communications and feelings), sometimes Twitter may not be the best platform to use.
 
-3. **Be aware of time frame and one-time events.** Seasonality like week, day of week or even hour can have an impact on the quantity of Tweets. In the case of beer-related Tweets, most occur on the weekends and in the afternoon and evening. This is an intuitive result. However, other research questions may have not-so-obvious seasonal patterns. Explore time patterns and attempt to identify any one-time events that may impact your results. 
+3. **Be aware of time frame and one-time events.** Seasonality like week, day of week or even hour can have an impact on the quantity of tweets. In the case of beer-related tweets, most occur on the weekends and in the afternoon and evening. This is an intuitive result. However, other research questions may have not-so-obvious seasonal patterns. Explore time patterns and attempt to identify any one-time events that may impact your results. 
 
 #### Brewery/Bar Owners:
 
@@ -363,4 +365,4 @@ Let's review the major takeaways for researchers and practioners (i.e., brewery 
 
 2. **Carolina Beer Temple is the most popular check-in location by Untappd mentions** Although not a brewery, Carolina Beer Temple in Matthews seems to be the most popular location. Unlike the more popular beer areas around Uptown, Carolina Beer Temple is isolated and in the suburbs. A key question would be does Carolina Beer Temple actively promote Untappd usage or is its popularity an indication of a strong, active customer-base (i.e., its customers are "beer enthusiasts")? 
 
-In part 2 of this tutorial, we'll use text mining to dig in deeper to who is Tweeting about beer and what they are saying. 
+In part 2 of this tutorial, we'll use text mining to dig in deeper to who is tweeting about beer and what they are saying. 
